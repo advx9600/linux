@@ -9,6 +9,11 @@
 #include <signal.h>
 
 #include "yuv-show.h"
+/*
+
+	must SDL 1.x
+	SDL 2.x have no SDL_CreateYUVOverlay
+*/
 
 static int isquit =0;
 void catch_sig(int sig)
