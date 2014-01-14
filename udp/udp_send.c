@@ -102,8 +102,7 @@ void send_loop(const char*ip,int port)
 }
 int main(int argc,char* argv[])
 {
-	if (argc !=4 || argc !=3 \
-		&& argv[1][0]!='s' && argv[1][0]!='r'){
+	if (argc <2 || (argv[1][0]!='s' && argv[1][0]!='r')){
 		printf("s ip port send, r port recv\n");
 		return -1;
 	}
