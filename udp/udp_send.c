@@ -5,7 +5,9 @@
 #include <netinet/in.h>
 #include <sys/types.h> /* See NOTES */
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <signal.h>
+#include <unistd.h>
 
 #include "udp_send.h"
 
@@ -21,7 +23,7 @@ int create_udp_socket(int port)
 	gsd=sd;
 
 
-	if (port < 1 || port >65536)	return ;
+	if (port < 1 || port >65536)	return -1;
 
         struct sockaddr_in addr;
 
@@ -100,7 +102,7 @@ void send_loop(const char*ip,int port)
 }
 int main(int argc,char* argv[])
 {
-	if (argc !=4 && argc !=3 \
+	if (argc !=4 || argc !=3 \
 		&& argv[1][0]!='s' && argv[1][0]!='r'){
 		printf("s ip port send, r port recv\n");
 		return -1;
