@@ -49,10 +49,6 @@ int my_sdl_start(int ww,int hh)
   int          v_pic_size = 0, v_frame_size = 0;
   s_picture    s_yuv_pic;
 
-  if (signal(SIGINT,catch_sig)){
-	perror("signal");
-	return -1;
-  }
   /* Init SDL */
   if( SDL_Init(SDL_INIT_EVERYTHING) == -1)
   {
