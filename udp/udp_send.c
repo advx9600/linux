@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <unistd.h>
+#include <poll.h>
 
 #include "udp_send.h"
 
@@ -43,6 +44,15 @@ int create_udp_socket(int port)
         }
 
 	return 0;
+}
+
+int poll_udp_sd(int polltime)
+{
+        struct pollfd pollfds;
+        pollfds.fd = gsd;
+        pollfds.events = POLLIN;
+
+        return poll(&pollfds,1,polltime);
 }
 
 int read_udp_data(char* data,int len)
