@@ -12,7 +12,7 @@
 
 #include "udp_send.h"
 
-int gsd=0;
+static int gsd=0;
 
 int create_udp_socket(int port)
 {
