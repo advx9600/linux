@@ -31,6 +31,7 @@ static char* toUpperCase(const char* str,char* upperStr)
 {
 	int i;
 	for (i=0;i<strlen(str);i++) upperStr[i]=toupper(str[i]);
+	upperStr[i]='\0';
 	return upperStr;
 }
 
@@ -74,8 +75,11 @@ int main(int argc,char* argv[])
 	while( !feof(fdIncSample) ){
 	   char upperName[100];
 	   if (fgets(readBuf,sizeof(readBuf),fdIncSample) == NULL) continue;
-	   replace(readBuf,"HELLOWORLD_SCENE",toUpperCase(className,upperName));
-	   replace(readBuf,"HelloWorld",className);
+	   if (strstr(readBuf,"HELLOWORLD_SCENE"))
+	     replace(readBuf,"HELLOWORLD_SCENE",\
+		toUpperCase(className,upperName));
+	   if (strstr(readBuf,"HelloWorld"))
+	     replace(readBuf,"HelloWorld",className);
 	   fwrite(readBuf,1,strlen(readBuf),fdInc);
 	}
 
