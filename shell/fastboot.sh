@@ -9,10 +9,10 @@ fast_boot="sudo /home/abc/Public/tools/android-sdk/android-sdk-linux/platform-to
 
 if [ $type = "bootloader" ]
 then
-	$fast_boot flash bootloader u-boot-samsung-dev/u-boot.bin
+	$fast_boot flash bootloader $uboot_out/u-boot.bin
 elif [ $type = "kernel" ]
 then
-	$fast_boot flash kernel kernel/arch/arm/boot/zImage
+	$fast_boot flash kernel $kernel_out/arch/arm/boot/zImage
 elif [ $type = "ramdisk" ]
 then
 	$fast_boot flash ramdisk $android_out/ramdisk-yaffs.img
