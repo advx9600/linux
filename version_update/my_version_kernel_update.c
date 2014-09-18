@@ -83,11 +83,9 @@ static char* kernelModifyLine(char* buf,const char* ver)
 	  buf[i+0]='\0';
 	  strcat(buf,ver);
 	  strcat(buf,temp);
-	  break;
+	  return buf;
 	}
   }
-
-  if (i<strlen(buf)) return buf;
 
   return NULL;
 }
@@ -119,12 +117,13 @@ int setVersion(const char* ver,SetVerType type)
 
 
   char buf[1024];
-  int i,j;
+  int i,isFound=0;
   while( !feof(fd) )
   {
 	if (fgets(buf,sizeof(buf),fd) == NULL) continue;
 
-	kernelModifyLine(buf,ver);
+	if (!isFound)
+		isFound=kernelModifyLine(buf,ver)?1:0;
 
 	fwrite(buf,1,strlen(buf),fdOut);
   }

@@ -93,7 +93,7 @@ int P8100_Audio_Play(char *pathname,int nSampleRate,int nChannels,int fmt)
 int main()
 {
  int value;
- value = P8100_Audio_Play("a.pcm",8000,1,16);
+ value = P8100_Audio_Play("b.pcm",8000,1,16);
  fprintf(stderr,"value is %d",value);
  return 0;
 } 
