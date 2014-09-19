@@ -6,14 +6,15 @@
 
 int main(int argc,char* argv[])
 {
-  if (argc != 3){
+  if (argc != 4){
 	printf("argc err\n");
-	printf("initVer(1.0.00)  setType(Integer uboot:0,kernel:1,system:2)\n");
+	printf("board(A8,A9...) initVer(1.0.00)  setType(Integer uboot:0,kernel:1,system:2)\n");
 	return -1;
   }
 
-  const char* initVer=argv[1];
-  const char* setVerType = argv[2];
+  const char* board = argv[1];
+  const char* initVer=argv[2];
+  const char* setVerType = argv[3];
   SetVerType type;
 
   switch(atoi(setVerType)){
@@ -31,7 +32,17 @@ int main(int argc,char* argv[])
 
   char openVerName[50];
   const char* verDir="my_ver";
-  sprintf(openVerName,"%s/%s_version.txt",verDir,gitBranch);
+  char  imgType[20]="";
+  switch(type)
+  {
+	case SYSTEM: strcpy(imgType,"system");
+	break;
+	case U_BOOT: strcpy(imgType,"u-boot");
+	break;
+	case KERNEL: strcpy(imgType, "kernel");
+	break;
+  }
+  sprintf(openVerName,"%s/%s_%s_version.txt",verDir,imgType,gitBranch);
  
   if (access(verDir) == -1){
 	mkdir(verDir,0777);
@@ -42,7 +53,7 @@ int main(int argc,char* argv[])
 	return 0;
   }
 
-  update_txt_file_ver(gitBranch,initVer,openVerName);
+  update_txt_file_ver(board,type,gitBranch,initVer,openVerName);
 
   char lastestVer[20];
   if (getLastestVer(openVerName,lastestVer) == NULL){

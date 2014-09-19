@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "my_total_h.h"
+
 static char* ver_add_2(char* ver,int pos,int val)
 {
   int i,j=0;
@@ -39,38 +41,77 @@ static char* ver_add(char* outVer,int num)
   }
 }
 
-static void set_txt_title(FILE* fd,const char* gitBranch,const char* baseVer,\
-	const char* lastVer,const char* lastCommitId,const char* lastChCommit)
+static void set_txt_title_margin(FILE* fd)
+{
+  char buf[1024];
+  fseek(fd,0,SEEK_SET);
+
+  memset(buf,32,sizeof(buf));
+  buf[500]='\n';
+  buf[501]='\0';
+  fwrite(buf,1,strlen(buf),fd);
+}
+
+static void add_string(FILE* fd,const char* str)
+{
+  fwrite(str,1,strlen(str),fd);
+}
+
+static void set_txt_title(FILE* fd,const char* board,\
+	SetVerType type,const char* gitBranch,\
+	const char* baseVer, const char* lastVer,\
+	const char* lastCommitId,const char* lastChCommit)
 {
   int i,j;
   char buf[1024];
 
   fseek(fd,0,SEEK_SET);
 
-  if (lastVer == NULL || lastCommitId == NULL || lastChCommit == NULL){
-	memset(buf,32,sizeof(buf));
-	buf[500]='\n';
-	buf[501]='\0';
-	fwrite(buf,1,strlen(buf),fd);
-	return ;
-  }
-
   strcpy(buf,"lastCommitId:");
   fwrite(buf,1,strlen(buf),fd);
   strcpy(buf,lastCommitId+7);
   fwrite(buf,1,strlen(buf),fd);
   
+  sprintf(buf,"board:%s,",board);
+  add_string(fd,buf);
+
+  strcpy(buf,"imgType:");
+  switch(type){
+	case U_BOOT:strcat(buf,"u-boot");
+	break;
+	case KERNEL:strcat(buf,"kernel");
+	break;
+	case SYSTEM:
+		strcat(buf,"system");
+	break;
+  }
+  strcat(buf,"\n");
+  add_string(fd,buf);
+
+  strcpy(buf,"imgFileName:");
+  switch(type){
+	case U_BOOT:strcat(buf,"u-boot.bin");
+	break;
+	case KERNEL:strcat(buf,"kernel.img");
+	break;
+	case SYSTEM:
+		strcat(buf,"system.img");
+		strcat(buf," ramdisk-yaffs.img");;
+		strcat(buf," userdata.img");;
+	break;
+  }
+  strcat(buf,"\n");
+  add_string(fd,buf);
 
   if (lastChCommit != NULL){
-	strcpy(buf,"last Chinese commit:");
-	fwrite(buf,1,strlen(buf),fd);
-	fwrite(lastChCommit,1,strlen(lastChCommit),fd);
+	add_string(fd,"last Chinese commit:");
+	add_string(fd,lastChCommit);
 	fwrite("\n\n\n\n",1,1,fd);
   }
 
   sprintf(buf,"gitBranch:%s,startVer:%s,latestVer:%s\n",\
 		gitBranch,baseVer,lastVer);
-  fwrite(buf,1,strlen(buf),fd);
+  add_string(fd,buf);
 
   fwrite("\n\n\n",1,3,fd);
 }
@@ -146,7 +187,8 @@ int is_need_update_ver(const char* verFile)
   return 1;
 }
 
-int update_txt_file_ver( const char* gitBranch, \
+int update_txt_file_ver(const char* board,SetVerType type, \
+	const char* gitBranch, \
 	const char* baseVer, const char* writeFile)
 {
 /*
@@ -179,7 +221,7 @@ int update_txt_file_ver( const char* gitBranch, \
   char lastChComment[sizeof(buf)];
   char lastCommitId[sizeof(buf)];
 
-  set_txt_title(fdSave,gitBranch,baseVer,NULL,NULL,NULL);
+  set_txt_title_margin(fdSave);
 
   int isWrite =0;
   int count =0;
@@ -229,7 +271,7 @@ int update_txt_file_ver( const char* gitBranch, \
   }
 
 
-  set_txt_title(fdSave,gitBranch,baseVer,lastVer,lastCommitId,lastChComment);
+  set_txt_title(fdSave,board,type,gitBranch,baseVer,lastVer,lastCommitId,lastChComment);
 
   fclose(fdSave);
   fclose(fd);

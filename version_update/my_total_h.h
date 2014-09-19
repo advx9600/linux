@@ -10,7 +10,8 @@ SYSTEM,
 
 /* my_version_check.c */
 int is_need_update_ver(const char* verFile);
-int update_txt_file_ver( const char* gitBranch, \
+int update_txt_file_ver(const char* board,SetVerType type, \
+	const char* gitBranch, \
         const char* baseVer, const char* writeFile);
 
 /* my_version_kernel_update.c */
