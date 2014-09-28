@@ -1,9 +1,10 @@
+#include "my_total_h.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "my_total_h.h"
 
 
+#ifdef MAKE_FOR_CC
 int main(int argc,char* argv[])
 {
   if (argc != 4){
@@ -31,22 +32,7 @@ int main(int argc,char* argv[])
   }
 
   char openVerName[50];
-  const char* verDir="my_ver";
-  char  imgType[20]="";
-  switch(type)
-  {
-	case SYSTEM: strcpy(imgType,"system");
-	break;
-	case U_BOOT: strcpy(imgType,"u-boot");
-	break;
-	case KERNEL: strcpy(imgType, "kernel");
-	break;
-  }
-  sprintf(openVerName,"%s/%s_%s_version.txt",verDir,imgType,gitBranch);
- 
-  if (access(verDir) == -1){
-	mkdir(verDir,0777);
-  }
+  getOpenVerName(type,openVerName);
 
   if (!is_need_update_ver(openVerName)){
 	printf("don't need update\n");
@@ -78,3 +64,16 @@ int main(int argc,char* argv[])
 
   return 0;
 }
+#endif
+
+#ifdef MAKE_FOR_PYTHON
+static PyMethodDef myModule_methods[] = {
+	{"getOpenVerName", py_updateversion_getOpenVerName, METH_VARARGS},
+	{NULL, NULL}
+};
+
+void initversionupdate()
+{
+	(void) Py_InitModule("versionupdate", myModule_methods);
+}
+#endif

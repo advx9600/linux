@@ -1,8 +1,8 @@
+#include "my_total_h.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "my_total_h.h"
 
 static char* ver_add_2(char* ver,int pos,int val)
 {
@@ -20,7 +20,7 @@ static char* ver_add_2(char* ver,int pos,int val)
 
   if (i<0) return NULL;
 
-  int isOver= (ver[i]-'0'&0xff)+val>9?1:0;
+  int isOver= ((ver[i]-'0')&0xff)+val>9?1:0;
   ver[i] = isOver?ver[i]+val-10:ver[i]+val;
 
   if (isOver) ver_add_2(ver,pos+1,1);
@@ -29,7 +29,7 @@ static char* ver_add_2(char* ver,int pos,int val)
 
 static char* ver_add(char* outVer,int num)
 {
-  int i,k,x;
+  int i,x;
   i=0;
   while(1)
   {
@@ -39,6 +39,7 @@ static char* ver_add(char* outVer,int num)
 	ver_add_2(outVer,i,x);
 	i++;
   }
+  return outVer;
 }
 
 static void set_txt_title_margin(FILE* fd)
@@ -62,7 +63,6 @@ static void set_txt_title(FILE* fd,const char* board,\
 	const char* baseVer, const char* lastVer,\
 	const char* lastCommitId,const char* lastChCommit)
 {
-  int i,j;
   char buf[1024];
 
   fseek(fd,0,SEEK_SET);
@@ -116,6 +116,7 @@ static void set_txt_title(FILE* fd,const char* board,\
   fwrite("\n\n\n",1,3,fd);
 }
 
+#if 0
 static char* read_last_commit(FILE* fd,char* buf)
 {
   char readbuf[300];
@@ -129,7 +130,9 @@ static char* read_last_commit(FILE* fd,char* buf)
   }
 //  printf("lastCommit:%s\n",readbuf+i+1);
   strcpy(buf,readbuf+i+1);
+  return buf;
 }
+#endif
 
 static char* read_last_commit_a(const char* logFile,const char* segName,char* outBuf)
 {
@@ -275,6 +278,8 @@ int update_txt_file_ver(const char* board,SetVerType type, \
 
   fclose(fdSave);
   fclose(fd);
+
+  return 0;
 }
 #if 0
 int main()

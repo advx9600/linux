@@ -1,7 +1,10 @@
+#include "my_total_h.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "my_total_h.h"
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 char* getLastestVer(const char* inFile,char* ver)
 {
@@ -11,7 +14,7 @@ char* getLastestVer(const char* inFile,char* ver)
         return NULL;
   }
 
-  int i,j;
+  int i;
   char buf[1024];
   int isFound=0;
   while( !feof(fd) )
@@ -45,8 +48,8 @@ char* getLastestVer(const char* inFile,char* ver)
 
 char* getCurGitBranch(char* ver)
 {
-  char* result = "";
-  int i,isFind;
+  //char* result = "";
+  int isFind;
   FILE *fpRead;
   const char* command="git branch";
 
@@ -117,7 +120,7 @@ int setVersion(const char* ver,SetVerType type)
 
 
   char buf[1024];
-  int i,isFound=0;
+  int isFound=0;
   while( !feof(fd) )
   {
 	if (fgets(buf,sizeof(buf),fd) == NULL) continue;
@@ -131,4 +134,41 @@ int setVersion(const char* ver,SetVerType type)
   fclose(fd);
   fclose(fdOut);
   return 0;
+}
+
+char* getOpenVerName(SetVerType type,char* openVerName)
+{
+  char gitBranch[20];
+  if (getCurGitBranch(gitBranch) == NULL){
+        printf("getCurGitVer failed!\n");
+        return NULL;
+  }
+
+  char  imgType[20]="";
+  const char* verDir = MY_DIR;
+  switch(type)
+  {
+        case SYSTEM: strcpy(imgType,"system");
+        break;
+        case U_BOOT: strcpy(imgType,"u-boot");
+        break;
+        case KERNEL: strcpy(imgType, "kernel");
+        break;
+  }
+  sprintf(openVerName,"%s/%s_%s_version.txt",verDir,imgType,gitBranch);
+
+  if (access(verDir,0777) == -1){
+        mkdir(verDir,0777);
+  }
+
+  return openVerName;
+}
+
+PyObject* py_updateversion_getOpenVerName(PyObject* self, PyObject* args)
+{
+	char s[50];
+	int x;
+	PyArg_ParseTuple(args, "i", &x);
+	getOpenVerName(x,s);
+	return Py_BuildValue("s", s);
 }
