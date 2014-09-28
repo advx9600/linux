@@ -9,7 +9,7 @@ int main(int argc,char* argv[])
 {
   if (argc != 4){
 	printf("argc err\n");
-	printf("board(A8,A9...) initVer(1.0.00)  setType(Integer uboot:0,kernel:1,system:2)\n");
+	printf("board(smdkv210,...) initVer(1.0.00)  setType(Integer uboot:0,kernel:1,system:2)\n");
 	return -1;
   }
 

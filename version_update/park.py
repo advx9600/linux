@@ -2,12 +2,14 @@ import versionupdate
 import os
 import sys
 
-#print "0 u-boot,1-kernel,2-system"
-img_type=sys.argv[1]
+#print "(0 u-boot,1-kernel,2-system) (s5pv210...)"
+board=sys.argv[1]
+
+img_type=sys.argv[2]
 img_type=int(img_type)
 
 ver_file = versionupdate.getOpenVerName(img_type)
-print ver_file
+#print ver_file
 	
 img_dir=""
 img_files=[];
@@ -22,16 +24,20 @@ elif img_type == 1:
 	img_files=["kernel.img"]
 	zipname="kernel.zip"
 elif img_type == 2:
-	img_dir="out/target/"
+	img_dir="out/target/product/smdkv210/"
 	img_files=["ramdisk-yaffs.img","userdata.img","system.img"]
 	zipname="system.zip"
 
+
+zipname=board+"_"+zipname;
+
+print "target file:",zipname
 
 all_files = ver_file
 for i in img_files:
 	all_files += " "+img_dir+i
 
-print all_files
+#print all_files
 
 if os.path.exists(zipname):
 	os.remove(zipname)
