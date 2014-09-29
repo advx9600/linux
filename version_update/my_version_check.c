@@ -82,7 +82,7 @@ static void set_txt_title(FILE* fd,const char* board,\
 	case KERNEL:strcat(buf,"kernel");
 	break;
 	case SYSTEM:
-		strcat(buf,"system ramdisk userdata");
+		strcat(buf,"system");
 	break;
   }
   strcat(buf,"\n");
