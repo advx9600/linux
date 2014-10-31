@@ -73,9 +73,19 @@ static ssize_t fs_write (struct file * a, const char * data, size_t size, loff_t
 	return size;
 }
 
+ssize_t fs_read(struct file *file, char __user *user, size_t size, loff_t * loff)
+{
+	Write_a wA;
+	if (copy_to_user(user,&wA,sizeof(wA))){
+		return -1;
+	}
+	return sizeof(wA);
+}
+
 static struct file_operations dev_fops = {
 	.owner	=	THIS_MODULE,
 	.write = fs_write,
+	.read = fs_read,
 };
 
 static struct miscdevice misc = {
@@ -84,17 +94,20 @@ static struct miscdevice misc = {
 	.fops = &dev_fops,
 };
 
+#if 0
 static irqreturn_t s3c_keypad_isr(int irq, void *dev_id)
 {
 	printk("irq happend!\n");
+	return IRQ_HANDLED;
 }
+#endif
 
 static int __init dev_init(void)
 {
 	int ret =0;
 	printk (DEVICE_NAME" initialized\n");
-	misc_register(&misc);
-	return 0;
+	ret=misc_register(&misc);
+	return ret;
 }
 
 static void __exit dev_exit(void)
