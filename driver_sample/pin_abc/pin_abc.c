@@ -25,19 +25,21 @@
 
 #define DEVICE_NAME "pin-abc"
 
+#define print(...) printk(DEVICE_NAME":"__VA_ARGS__)
+
 static volatile unsigned int* Pin1;
 
 static void print_reg(const char* name,int addr)
 {
 	Pin1=ioremap(addr,4);
-	printk("%s 0x%x:0x%x\n",name,addr,*Pin1);
+	print("%s 0x%x:0x%x\n",name,addr,*Pin1);
 	iounmap(Pin1);
 }
 
 static void write_reg(const char* name,int addr,int val)
 {
 	Pin1=ioremap(addr,4);
-	printk("write %s 0x%x:0x%x=0x%x\n",name,addr,*Pin1,val);
+	print("write %s 0x%x:0x%x=0x%x\n",name,addr,*Pin1,val);
 	*Pin1 = val;
 	iounmap(Pin1);
 }
@@ -57,11 +59,11 @@ static ssize_t fs_write (struct file * a, const char * data, size_t size, loff_t
 	Write_a* wrA=(Write_a*)buf;
 	copy = copy_from_user(buf, data, size); 
 	if (copy){
-	  printk("copy failed!\n");
+	  print("copy failed!\n");
 	  return -1;
 	}
 	if (size != sizeof(Write_a)){
-	  printk("size err size:%d\n",size);
+	  print("size err size:%d\n",size);
 	  return -1;
 	}
 
@@ -105,14 +107,14 @@ static irqreturn_t s3c_keypad_isr(int irq, void *dev_id)
 static int __init dev_init(void)
 {
 	int ret =0;
-	printk (DEVICE_NAME" initialized\n");
+	print (" initialized\n");
 	ret=misc_register(&misc);
 	return ret;
 }
 
 static void __exit dev_exit(void)
 {
-	printk(DEVICE_NAME" removed\n");
+	print(" removed\n");
 	misc_deregister(&misc);
 }
 module_init(dev_init);
