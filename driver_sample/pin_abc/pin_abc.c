@@ -36,6 +36,15 @@ static void print_reg(const char* name,int addr)
 	iounmap(Pin1);
 }
 
+static unsigned int read_reg(int addr)
+{
+	unsigned int val=0;
+	Pin1=ioremap(addr,4);
+	val = *Pin1;
+	iounmap(Pin1);
+	return val;
+}
+
 static void write_reg(const char* name,int addr,int val)
 {
 	Pin1=ioremap(addr,4);
