@@ -83,7 +83,7 @@ static int copy_to_share_mem(const char* addr,int num)
     shared->size=num;
     memcpy(shared->text,addr,num);
     shared->text[num-1]='\0';
-    printf("%s\n",shared->text);
+    printf("\033[32m""%s\n""\033[m", shared->text);
 
     untach_addr(shared);
 
@@ -107,8 +107,8 @@ static int write_to_mem()
 static void copy_to_clip_baord(const char* str)
 {
     char cmd[1024];
+    printf("\033[35m""%s:copyed\n""\033[m",str);
     snprintf(cmd,sizeof(cmd),"echo \"%s\" | xclip -selection clipboard",str);
-    //printf("cmd:%s\n",cmd);
     system(cmd);
 }
 
@@ -130,7 +130,7 @@ static int read_from_mem(const int line)
     {
 	if (buf[i] == '\n' || buf[i+1] == '\0'){
 	    cur_line++;
-	    end = i-1;
+	    end = i==len-1?i:i-1;
 	    if (cur_line != line){
 		start = i+1;
 	    }else break;
@@ -142,7 +142,6 @@ static int read_from_mem(const int line)
 
 	memcpy(read_buf,buf+start,end-start+1);
 	read_buf[end-start+1]='\0';
-	printf("%s\n",read_buf);
 	copy_to_clip_baord(read_buf);
     }
     return 0;
