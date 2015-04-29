@@ -70,7 +70,7 @@ static int gFd;
 #define Set_2805_CS(t)  do{}while(0)
 #define SPI_READ_ID(t) Read_Register(t)
 
-#include "ssd2828_pin.c"
+//#include "ssd2828_pin.c"
 #include "ssd2828_inti_reference_only.c"
 #include "OT1287_HSD698_20150112.c"
 
@@ -127,7 +127,7 @@ int main()
 	printf("bits per word: %d\n", bits);
 	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
 
-	ssd2828_gpio_cfg();
+//	ssd2828_gpio_cfg();
 
 	lcm_config();
 	printf("2828 ID:0x%X\n",SPI_READ_ID(0xB0));

@@ -1,2 +1,2 @@
 swig_java:
-	swig -java serial_com.i
+	swig -java -package com.dafeng.serial serial_com.i

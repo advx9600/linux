@@ -24,7 +24,7 @@ int main()
     while( !feof(fd) ){
 	if (fgets(buf,sizeof(buf),fd)){
 	    buf[sizeof(buf)-2]=0;
-	    if (strstr(buf,"error"))
+	    if (strstr(buf,"error") || strstr(buf,"undefined"))
 		printf("\033[31m""%s""\033[m", buf);
 	}
     }

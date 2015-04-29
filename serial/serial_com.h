@@ -10,6 +10,6 @@
  int writeData(int fd_write, const char* bts,
                 int leng);
  
- int readData(int fd_read,char*bts,
-                int leng, int timeOut);
+ int readData(int fd_read,char* BYTE,
+                int LENGTH, int timeOut);
 #endif

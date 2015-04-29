@@ -116,13 +116,10 @@ static int getBaudRate(int baudRate) {
 		LOGE("write bts is NULL!");
 		return 0;
 	}
-//	LOGI("after 485 set 1");
 	if (write(fd_write, bts, leng) != leng) {
 		LOGE("write data failed!");
 		return 0;
 	}
-//	LOGI("before 485 set 0");
-//	LOGI("after 485 set 0");
 	return leng;
 }
 
@@ -141,7 +138,7 @@ static int getBaudRate(int baudRate) {
 	return ret;
 }
 
-#if 1
+#if 0
 int main(int argc,char* argv[])
 {
 	if (argc != 2){

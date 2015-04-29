@@ -79,7 +79,7 @@ void close_udp_socket()
 	close(gsd);
 }
 
-#if 1
+#if 0
 
 void read_loop(int port)
 {
