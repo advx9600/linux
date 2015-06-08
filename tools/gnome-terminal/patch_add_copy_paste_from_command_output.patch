@@ -1,0 +1,315 @@
+diff --git a/src/gnome-terminal.schemas.in b/src/gnome-terminal.schemas.in
+index ee57144..1735e0c 100644
+--- a/src/gnome-terminal.schemas.in
++++ b/src/gnome-terminal.schemas.in
+@@ -890,6 +890,63 @@
+     </schema>
+ 
+     <schema>
++      <key>/schemas/apps/gnome-terminal/keybindings/copy_cmd_outp</key>
++      <applyto>/apps/gnome-terminal/keybindings/copy_cmd_outp</applyto>
++      <owner>gnome-terminal</owner>
++      <type>string</type>
++      <default>&lt;Ctrl&gt;&lt;Shift&gt;)</default>
++      <locale name="C">
++         <short>Copy output after command</short>
++         <long>
++	  copy ouput after command
++	  example when you do ls command,the result will copy into buffer
++         </long>
++      </locale>
++    </schema>
++
++    <schema>
++      <key>/schemas/apps/gnome-terminal/keybindings/paste_line1</key>
++      <applyto>/apps/gnome-terminal/keybindings/paste_line1</applyto>
++      <owner>gnome-terminal</owner>
++      <type>string</type>
++      <default>&lt;Ctrl&gt;&lt;Shift&gt;1</default>
++      <locale name="C">
++         <short>Keyboard shortcut to paste text from copy_cmd_outp</short>
++         <long>
++	   after you do copy_cmd_outp key,paste first line text to terminal
++         </long>
++      </locale>
++    </schema>
++
++    <schema>
++      <key>/schemas/apps/gnome-terminal/keybindings/paste_line2</key>
++      <applyto>/apps/gnome-terminal/keybindings/paste_line2</applyto>
++      <owner>gnome-terminal</owner>
++      <type>string</type>
++      <default>&lt;Ctrl&gt;&lt;Shift&gt;2</default>
++      <locale name="C">
++         <short>paste_line2</short>
++         <long>
++	  same as paste_line1
++         </long>
++      </locale>
++    </schema>
++
++    <schema>
++      <key>/schemas/apps/gnome-terminal/keybindings/paste_line3</key>
++      <applyto>/apps/gnome-terminal/keybindings/paste_line3</applyto>
++      <owner>gnome-terminal</owner>
++      <type>string</type>
++      <default>&lt;Ctrl&gt;&lt;Shift&gt;3</default>
++      <locale name="C">
++         <short>paste_line3</short>
++         <long>
++	  same as paste_line1
++         </long>
++      </locale>
++    </schema>
++
++    <schema>
+       <key>/schemas/apps/gnome-terminal/keybindings/full_screen</key>
+       <applyto>/apps/gnome-terminal/keybindings/full_screen</applyto>
+       <owner>gnome-terminal</owner>
+diff --git a/src/terminal-accels.c b/src/terminal-accels.c
+index e02ae62..749135d 100644
+--- a/src/terminal-accels.c
++++ b/src/terminal-accels.c
+@@ -62,8 +62,12 @@
+ #define ACCEL_PATH_CLOSE_WINDOW         ACCEL_PATH_ROOT "FileCloseWindow"
+ #define ACCEL_PATH_COPY                 ACCEL_PATH_ROOT "EditCopy"
+ #define ACCEL_PATH_COPY2                ACCEL_PATH_ROOT "EditCopy2"
++#define ACCEL_PATH_COPY_CMD_OUTP        ACCEL_PATH_ROOT "EditCopyCmdOuput"
+ #define ACCEL_PATH_PASTE                ACCEL_PATH_ROOT "EditPaste"
+ #define ACCEL_PATH_PASTE2               ACCEL_PATH_ROOT "EditPaste2"
++#define ACCEL_PATH_PASTE_LINE1          ACCEL_PATH_ROOT "EditPasteLine1"
++#define ACCEL_PATH_PASTE_LINE2          ACCEL_PATH_ROOT "EditPasteLine2"
++#define ACCEL_PATH_PASTE_LINE3          ACCEL_PATH_ROOT "EditPasteLine3"
+ #define ACCEL_PATH_TOGGLE_MENUBAR       ACCEL_PATH_ROOT "ViewMenubar"
+ #define ACCEL_PATH_FULL_SCREEN          ACCEL_PATH_ROOT "ViewFullscreen"
+ #define ACCEL_PATH_RESET                ACCEL_PATH_ROOT "TerminalReset"
+@@ -84,6 +88,7 @@
+ #define KEY_CLOSE_WINDOW        CONF_KEYS_PREFIX "/close_window"
+ #define KEY_COPY                CONF_KEYS_PREFIX "/copy"
+ #define KEY_COPY2               CONF_KEYS_PREFIX "/copy2"
++#define KEY_COPY_CMD_OUTP       CONF_KEYS_PREFIX "/copy_cmd_outp"
+ #define KEY_DETACH_TAB          CONF_KEYS_PREFIX "/detach_tab"
+ #define KEY_FULL_SCREEN         CONF_KEYS_PREFIX "/full_screen"
+ #define KEY_HELP                CONF_KEYS_PREFIX "/help"
+@@ -95,6 +100,9 @@
+ #define KEY_NEXT_TAB            CONF_KEYS_PREFIX "/next_tab"
+ #define KEY_PASTE               CONF_KEYS_PREFIX "/paste"
+ #define KEY_PASTE2              CONF_KEYS_PREFIX "/paste2"
++#define KEY_PASTE_LINE1         CONF_KEYS_PREFIX "/paste_line1"
++#define KEY_PASTE_LINE2         CONF_KEYS_PREFIX "/paste_line2"
++#define KEY_PASTE_LINE3         CONF_KEYS_PREFIX "/paste_line3"
+ #define KEY_PREV_TAB            CONF_KEYS_PREFIX "/prev_tab"
+ #define KEY_RESET_AND_CLEAR     CONF_KEYS_PREFIX "/reset_and_clear"
+ #define KEY_RESET               CONF_KEYS_PREFIX "/reset"
+@@ -169,6 +177,14 @@ static KeyEntry edit_entries[] =
+     KEY_COPY2, ACCEL_PATH_COPY2, GDK_SHIFT_MASK | GDK_CONTROL_MASK, GDK_KEY (j), NULL, FALSE, TRUE },
+   { N_("Paste2"),
+     KEY_PASTE2, ACCEL_PATH_PASTE2, GDK_SHIFT_MASK | GDK_CONTROL_MASK, GDK_KEY (k), NULL, FALSE, TRUE },
++  { N_("Copy Cmd Output"),
++    KEY_COPY_CMD_OUTP, ACCEL_PATH_COPY_CMD_OUTP, GDK_SHIFT_MASK | GDK_CONTROL_MASK, GDK_KEY (0), NULL, FALSE, TRUE },
++  { N_("Paste Line1"),
++    KEY_PASTE_LINE1, ACCEL_PATH_PASTE_LINE1, GDK_SHIFT_MASK | GDK_CONTROL_MASK, GDK_KEY (1), NULL, FALSE, TRUE },
++  { N_("Paste Line2"),
++    KEY_PASTE_LINE2, ACCEL_PATH_PASTE_LINE2, GDK_SHIFT_MASK | GDK_CONTROL_MASK, GDK_KEY (2), NULL, FALSE, TRUE },
++  { N_("Paste Line3"),
++    KEY_PASTE_LINE3, ACCEL_PATH_PASTE_LINE3, GDK_SHIFT_MASK | GDK_CONTROL_MASK, GDK_KEY (3), NULL, FALSE, TRUE },
+ };
+ 
+ static KeyEntry view_entries[] =
+diff --git a/src/terminal-window.c b/src/terminal-window.c
+index 4dabf51..4aa5ccb 100644
+--- a/src/terminal-window.c
++++ b/src/terminal-window.c
+@@ -184,6 +184,14 @@ static void edit_paste_callback               (GtkAction *action,
+                                                TerminalWindow *window);
+ static void edit_paste_callback2              (GtkAction *action,
+                                                TerminalWindow *window);
++static void edit_paste_from_cmd_callback1      (GtkAction *action,
++                                               TerminalWindow *window);
++static void edit_paste_from_cmd_callback2      (GtkAction *action,
++                                               TerminalWindow *window);
++static void edit_paste_from_cmd_callback3      (GtkAction *action,
++                                               TerminalWindow *window);
++static void edit_copy_cmd_outp_callback       (GtkAction *action,
++                                               TerminalWindow *window);
+ static void edit_select_all_callback          (GtkAction *action,
+                                                TerminalWindow *window);
+ static void edit_keybindings_callback         (GtkAction *action,
+@@ -1846,6 +1854,18 @@ terminal_window_init (TerminalWindow *window)
+       { "EditPaste2", GTK_STOCK_PASTE, N_("_Paste2"), "<shift><control>V",
+         NULL,
+         G_CALLBACK (edit_paste_callback2) },
++      { "EditCopyCmdOuput", GTK_STOCK_COPY, N_("_Copy Cmd Output"), "<control>0",
++        NULL,
++        G_CALLBACK (edit_copy_cmd_outp_callback) },
++      { "EditPasteLine1", GTK_STOCK_COPY, N_("_Paste Line1"), "<control>1",
++        NULL,
++        G_CALLBACK (edit_paste_from_cmd_callback1) },
++      { "EditPasteLine2", GTK_STOCK_COPY, N_("_Paste Line2"), "<control>2",
++        NULL,
++        G_CALLBACK (edit_paste_from_cmd_callback2) },
++      { "EditPasteLine3", GTK_STOCK_COPY, N_("_Paste Line3"), "<control>3",
++        NULL,
++        G_CALLBACK (edit_paste_from_cmd_callback3) },
+       { "EditPasteURIPaths", GTK_STOCK_PASTE, N_("Paste _Filenames"), "",
+         NULL,
+         G_CALLBACK (edit_paste_callback) },
+@@ -3503,6 +3523,100 @@ edit_copy_callback2 (GtkAction *action,
+                                 NULL);
+ }
+ 
++static gboolean
++edit_cpy_get_text (VteTerminal *terminal,
++                     glong column,
++                     glong row,
++                     gpointer data)
++{
++   return TRUE;
++}
++
++#define TERMINAL_CMD_RES_NUM 3
++typedef struct terminalCmdResultData{
++  char text[TERMINAL_CMD_RES_NUM][512];
++} TerminalCmdResData;
++
++TerminalCmdResData gTerCmdReData;
++
++static gboolean edit_copy_cmd_outp_process(VteTerminal *terminal,char* data)
++{
++  char title[512],*str,*str2;
++  int i,j,k,len;
++
++  strcpy(title, vte_terminal_get_icon_title (terminal));
++  // get title like "@abc-virtual-machine:"
++  len = strlen(title);
++  for (i = 0; i < len; i++) if (title[i] == '@') { strcpy(title,title+i); break; }
++  for (i = 0; i < len; i++) if (title[i] == ':') { title[i+1] = 0; break; }
++
++  str=data; str2=NULL;
++  while(1)
++  {
++     if ((str=strstr(str,title)) != NULL &&
++        strstr(str+strlen(title),title) != NULL){
++        str2 =str;
++	str += strlen(title);
++     }else break;
++  }
++
++  TerminalCmdResData* ter = &gTerCmdReData;
++  if (str2 != NULL){
++    for (i = 0 ;i < TERMINAL_CMD_RES_NUM ;i++) ter->text[i][0]=0;
++    for (i = 0 ;i < strlen(str2) ;i++) if (str2[i] == '\n') {str2 = str2+i+1; break;}
++    str = strstr(str2,title);
++    for (i = 0 ; ; i--) if ( str[i] == '\n' || str == str2) {str[i] = 0; break; }
++    len = strlen(str2);
++    for (i = j = k =0; i < len && j < TERMINAL_CMD_RES_NUM; i++)
++    {
++	ter->text[j][k++]= str2[i]!='\n'?str2[i]:0;
++        if ( str2[i] == '\n' || str2[i] == 0){
++	  j++;
++	  k = 0;
++        }
++    }
++//    for (i=0;i<TERMINAL_CMD_RES_NUM;i++) printf("text[%d]:%s\n",i,ter->text[i]);
++    return TRUE;
++  }
++
++  return FALSE;
++}
++
++static void
++clipboard_received_cb_text_cmd_select_all (GtkClipboard *clipboard,
++                             const  char *text,
++                            VteTerminal *terminal)
++{
++  if (text != NULL){
++    edit_copy_cmd_outp_process(terminal,text);
++  }
++}
++
++static void
++edit_copy_cmd_outp_callback (GtkAction *action,
++                     TerminalWindow *window)
++{
++  TerminalWindowPrivate *priv = window->priv;
++  GtkClipboard *clipboard;
++  char* data,title[512],*str,*str2;
++  int i,j,k,len;
++
++  if (!priv->active_screen)
++    return;
++
++  data=vte_terminal_get_text(VTE_TERMINAL (priv->active_screen),edit_cpy_get_text,\
++	NULL,NULL);
++  if (!edit_copy_cmd_outp_process(VTE_TERMINAL (priv->active_screen),data)){
++    vte_terminal_select_all(VTE_TERMINAL (priv->active_screen));
++    vte_terminal_copy_primary (VTE_TERMINAL (priv->active_screen));
++    clipboard = gtk_widget_get_clipboard (GTK_WIDGET (window), GDK_SELECTION_PRIMARY );
++    gtk_clipboard_request_text (clipboard,
++                                (GtkClipboardURIReceivedFunc) clipboard_received_cb_text_cmd_select_all,
++                                VTE_TERMINAL (priv->active_screen));
++    vte_terminal_select_none(VTE_TERMINAL (priv->active_screen));
++  }
++}
++
+ static void
+ clipboard_uris_received_cb (GtkClipboard *clipboard,
+                             /* const */ char **uris,
+@@ -3593,6 +3707,42 @@ edit_paste_callback2 (GtkAction *action,
+ }
+ 
+ static void
++edit_paste_from_cmd_callback (GtkAction *action,
++                     TerminalWindow *window,int num)
++{
++  TerminalWindowPrivate *priv = window->priv;
++  char* data = &gTerCmdReData.text[num-1];
++
++  if (!priv->active_screen)
++    return;
++
++  if (strlen(data) > 0){
++    vte_terminal_feed_child (VTE_TERMINAL (priv->active_screen),data,strlen(data));
++  }
++}
++
++static void
++edit_paste_from_cmd_callback1 (GtkAction *action,
++                     TerminalWindow *window)
++{
++  edit_paste_from_cmd_callback(action, window,1);
++}
++
++static void
++edit_paste_from_cmd_callback2 (GtkAction *action,
++                     TerminalWindow *window)
++{
++  edit_paste_from_cmd_callback(action, window,2);
++}
++
++static void
++edit_paste_from_cmd_callback3 (GtkAction *action,
++                     TerminalWindow *window)
++{
++  edit_paste_from_cmd_callback(action, window,3);
++}
++
++static void
+ edit_select_all_callback (GtkAction *action,
+                           TerminalWindow *window)
+ {
+diff --git a/src/terminal.xml b/src/terminal.xml
+index ea24ad6..d85fd6b 100644
+--- a/src/terminal.xml
++++ b/src/terminal.xml
+@@ -17,6 +17,10 @@
+       <menuitem action="EditPaste" />
+       <menuitem action="EditCopy2" />
+       <menuitem action="EditPaste2" />
++      <menuitem action="EditCopyCmdOuput" />
++      <menuitem action="EditPasteLine1" />
++      <menuitem action="EditPasteLine2" />
++      <menuitem action="EditPasteLine3" />
+       <menuitem action="EditPasteURIPaths" />
+       <separator />
+       <menuitem action="EditSelectAll" />
