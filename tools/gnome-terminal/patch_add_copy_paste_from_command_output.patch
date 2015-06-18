@@ -201,7 +201,7 @@ index 4dabf51..4aa5ccb 100644
 +    for (i = 0 ;i < strlen(str2) ;i++) if (str2[i] == '\n') {str2 = str2+i+1; break;}
 +    str = strstr(str2,title);
 +    for (i = 0 ; ; i--) if ( str[i] == '\n' || str == str2) {str[i] = 0; break; }
-+    len = strlen(str2);
++    len = strlen(str2)+1;
 +    for (i = j = k =0; i < len && j < TERMINAL_CMD_RES_NUM; i++)
 +    {
 +	ter->text[j][k++]= str2[i]!='\n'?str2[i]:0;
