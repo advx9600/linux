@@ -20,24 +20,25 @@ http://www.bubuko.com/infodetail-465930.html
 int dwt_algorithm(const int *p,const int pN,const int* q,const int qN);
 
 
-static void print_array(int* val,int row,int col)
+static void print_array(const int* p,int pN,const int* q,int qN)
 {
     int i,j;
-    const char* format = "%04d  ";
-    printf("      ");
-    for (i = 0; i< row ;i++) printf(format,i); printf("\n\n");
+    const char* format = "%8d  ";
+    printf("          ");
+    for (i = 0; i< qN ;i++) printf(format,i); printf("\n\n");
 
-    for (i = 0; i< col ;i++)
+    for (i = 0; i< pN ;i++)
     {
-	for (j = 0; j< row; j++)
-	{
-	    if (j == 0 ) printf(format,i);
-	    printf(format,val[i*row+j]);
-	}
-	printf("\n");
+        for (j = 0; j< qN; j++)
+        {
+            if (j == 0 ) printf(format,i);
+            printf(format, abs(p[i]-q[j]) );
+        }
+        printf("\n");
     }
-	
-}
+
+}	
+
 int dwt_algorithm(const int *p,const int pN,const int* q,const int qN)
 {
     int i,j,k;
@@ -70,6 +71,8 @@ int dwt_algorithm(const int *p,const int pN,const int* q,const int qN)
     return 0;
 }
 
+static int gPosBefore;
+
 static int get_sample_fd(FILE* fd , int* p ,int* pN)
 {
     int j,k;
@@ -79,6 +82,8 @@ static int get_sample_fd(FILE* fd , int* p ,int* pN)
 
     k = 0;
     int overTimes = 0;
+    int isIgnore = 0;
+    gPosBefore = -1;
     while( !feof(fd) )
     {
 	const int len =fread(readVal,2,ARRAY_SIZE(readVal),fd);
@@ -100,13 +105,16 @@ static int get_sample_fd(FILE* fd , int* p ,int* pN)
 	if ( max > limit ){
 	    start = 1;
 	    overTimes =0;
+	    if (gPosBefore < 1 ) gPosBefore = ftell(fd);
 	}
 	
 	if (start){
-	    for (j = 0 ; j < len; j++)
-	    {
-		p[k++] = readVal[j];
-	    }
+	    if ( k + len > 1024*1024/4 -1 ){ isIgnore =1; k = 0;}
+	    if ( !isIgnore )
+		for (j = 0 ; j < len; j++)
+		{
+		    p[k++] = readVal[j];
+		}
 	}
     }
 
@@ -152,20 +160,21 @@ static int save_buf_file(const char* file,const int*p ,const int pN)
     return 0;
 }
 
-static int compare_file(const char* openFile,int* p, int pN)
+static int compare_file(const char* openFile,int* p, int pN,int* fPos)
 {
     FILE* fd = fopen(openFile,"r");
     if (fd == NULL) { perror("fopen"); return -1; }
 
     int i,qN;
-    int* q = (int*) malloc(1024*1024);
+    qN = 1024*1024;
+    int* q = (int*) malloc(qN);
     if (q == NULL) { perror("malloc"); return -1; }
 
 
     i = 0;
 
     int min = 0xFFFFFF;
-    int fPos = 0;
+
     while ( !feof(fd) )
     {
 	get_sample_fd(fd,q,&qN);
@@ -177,14 +186,15 @@ static int compare_file(const char* openFile,int* p, int pN)
 	    const char* format="/mnt/hgfs/Desktop/temp/autio_process/three/%03d.pcm";
 	    sprintf(file,format,i);
 
+	    //int w = compare_squares(p,pN,q,qN);
 	    int w = dwt_algorithm(p,pN,q,qN);
 	    if ( min > w ) { 
 		min = w; 
-		fPos = ftell(fd) ;
+		*fPos = gPosBefore;
 
-	    save_buf_file(file,q,qN);
+//	    save_buf_file(file,q,qN);
 
-		printf("i:%2d,w:%8d,ftell:%8d\n",i,w,fPos);
+		printf("i:%2d,w:%8d,ftell:%8d\n",i,w,*fPos);
 	    }
 	}
     }
@@ -195,13 +205,56 @@ static int compare_file(const char* openFile,int* p, int pN)
 
 int main()
 {
+    int i;
+    const char* dir = "/mnt/hgfs/Desktop/temp/autio_process/japan_advance_level/";
+    const char* dirOut = "/mnt/hgfs/Desktop/temp/autio_process/three/";
+
     int* p = (int*) malloc(1024*1024);
     int pN;
     get_sample_file("/mnt/hgfs/Desktop/temp/autio_process/three/00_sample_2.pcm",p,&pN);
 //    printf("pN:%d\n",pN);
-    save_buf_file("/mnt/hgfs/Desktop/temp/autio_process/three/00_sample_output.pcm",p,pN);
- //   compare_file("/mnt/hgfs/Desktop/temp/autio_process/three/Lesson2.pcm",p,pN);
-    compare_file("/mnt/hgfs/Desktop/temp/autio_process/three/Lesson3.pcm",p,pN);
+//    save_buf_file("/mnt/hgfs/Desktop/temp/autio_process/three/00_sample_output.pcm",p,pN);
+    #if 1
+
+    for ( i = 0 ; i < 24; i++)
+    {
+	char cmd[1024];
+ 	char mp3File[512];
+	char pcmFile[512];
+	char splitWav1[512];
+	char splitWav2[512];
+	char splitMp31[512];
+	char splitMp32[512];
+	int fPos=-1;
+
+	sprintf(mp3File,"/mnt/hgfs/Desktop/temp/autio_process/japan_advance_level/Lesson%d.mp3",i+1);
+        sprintf(pcmFile,"/mnt/hgfs/Desktop/temp/autio_process/three/Lesson%d.pcm",i+1);
+	sprintf(cmd,"./decode_pcm %s %s",mp3File,pcmFile);
+
+	printf("%s\n",cmd);
+	system(cmd);
+
+	compare_file(pcmFile,p,pN,&fPos);
+
+	if (fPos < 0 ){ printf("search failed!\n"); continue; }
+
+
+	sprintf(splitWav1,"/mnt/hgfs/Desktop/temp/autio_process/three/Lesson%d_1.wav",i+1);
+	sprintf(splitWav2,"/mnt/hgfs/Desktop/temp/autio_process/three/Lesson%d_2.wav",i+1);
+	sprintf(cmd,"./pcm_to_wav %s %s %s %d",mp3File,splitWav1,splitWav2,fPos);
+	printf("%s\n",cmd);
+	system(cmd);
+
+	
+	sprintf(splitMp31,"/mnt/hgfs/Desktop/temp/autio_process/four/%02d.mp3",i*2+1);
+	sprintf(splitMp32,"/mnt/hgfs/Desktop/temp/autio_process/four/%02d.mp3",i*2+2);
+	sprintf(cmd,"lame %s %s",splitWav1,splitMp31);
+	system(cmd);
+	sprintf(cmd,"lame %s %s",splitWav2,splitMp32);
+	system(cmd);
+    }
+
+    #endif
 
     free(p);
     return 0;
